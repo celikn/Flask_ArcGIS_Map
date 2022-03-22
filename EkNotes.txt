@@ -1,5 +1,0 @@
-git rebase --root --exec "git commit --amend --author=' name <email@email.com>' --no-edit"
-
- docker cp 6a689184c56d:/opt/geoserver/data_dir ./geoserver/data_dir
-
- 
