@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
+
+    <!-- These tag load arcgis for javascript libraries -->
     <link rel="stylesheet" href="https://js.arcgis.com/3.39/esri/css/esri.css">
     <script src="https://js.arcgis.com/3.39/"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
     <title></title>
+    
     <body class="claro">
+      <div id="search"></div>
+      <!-- Div tag created for map element -->
       <div id="map"></div>
     </body>
   </head>
@@ -14,20 +19,69 @@
   <script>
     
   var map;
-    require(["esri/map"], function(Map) {
+    require([
+        "esri/map",
+        "esri/dijit/Search",
+        "esri/geometry/Extent",
+        "esri/graphic",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/geometry/screenUtils",
+        "dojo/dom",
+        "dojo/dom-construct",
+        "dojo/query",
+        "dojo/_base/Color"
+      ], function (Map, Search, Extent, Graphic, SimpleMarkerSymbol, screenUtils, dom, domConstruct, query, Color){
+      
+      
+      // Instantiate map object
       map = new Map("map", {
         basemap: "topo-vector",
-        center: [-122.45, 37.75],
+        center: [36, 37.75],  //lon lat
         zoom: 13
       });
+
+
+    // Instantiate search object
+    var search = new Search({
+      map: map,
+    }, dom.byId("search"));
+
+   //Create extent to limit search --> limits the search area 
+   var extent = new Extent({
+         "spatialReference": {
+            "wkid": 4326
+            },
+         "xmin": 24,
+            "xmax": 42,
+            "ymin": 34,
+            "ymax": 42
+         });
+
+    //set the source's searchExtent to the extent specified above
+      search.sources[0].searchExtent = extent;
+
+
+
+
+
+    search.startup();
+
     });
 
   </script>
   <style>
-    html, body, #map {
-      height: 100%;
-      padding: 0;
-      margin: 0;
-    }
+    #map {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #search {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    top: 20px;
+    left: 75px;
+  }
   </style>
 </html>
