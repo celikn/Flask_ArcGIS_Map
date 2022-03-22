@@ -1,87 +1,172 @@
-<!DOCTYPE html>
 <html>
-  <head>
 
-    <!-- These tag load arcgis for javascript libraries -->
-    <link rel="stylesheet" href="https://js.arcgis.com/3.39/esri/css/esri.css">
-    <script src="https://js.arcgis.com/3.39/"></script>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title></title>
-    
-    <body class="claro">
-      <div id="search"></div>
-      <!-- Div tag created for map element -->
-      <div id="map"></div>
-    </body>
-  </head>
-
-  <script>
-    
-  var map;
-    require([
-        "esri/map",
-        "esri/dijit/Search",
-        "esri/geometry/Extent",
-        "esri/graphic",
-        "esri/symbols/SimpleMarkerSymbol",
-        "esri/geometry/screenUtils",
-        "dojo/dom",
-        "dojo/dom-construct",
-        "dojo/query",
-        "dojo/_base/Color"
-      ], function (Map, Search, Extent, Graphic, SimpleMarkerSymbol, screenUtils, dom, domConstruct, query, Color){
-      
-      
-      // Instantiate map object
-      map = new Map("map", {
-        basemap: "topo-vector",
-        center: [36, 37.75],  //lon lat
-        zoom: 13
-      });
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>ArcGIS API for JavaScript Tutorials: Display a map</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.22/"></script>
+  <script src="{{url_for('static', filename='javascript/config.js')}}"></script>
+  <script src="{{url_for('static', filename='javascript/styler.js')}}"></script>
 
 
-    // Instantiate search object
-    var search = new Search({
-      map: map,
-    }, dom.byId("search"));
+<body>
+  <div id="viewDiv"></div>
+</body>
 
-   //Create extent to limit search --> limits the search area 
-   var extent = new Extent({
-         "spatialReference": {
-            "wkid": 4326
-            },
-         "xmin": 24,
-            "xmax": 42,
-            "ymin": 34,
-            "ymax": 42
-         });
-
-    //set the source's searchExtent to the extent specified above
-      search.sources[0].searchExtent = extent;
+<style>
+  html,
+  body,
+  #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
 
 
 
 
 
-    search.startup();
+<script>
+
+  // Takes API Key from config file
+  var arcgisApiKey = config.arcgisApiKey;  // key eklemeyi unutma
+  console.log(arcgisApiKey);
+
+
+
+  //Initialize api key Map and Map View classes.
+  require([  // Require is a built in function of NodeJs, and used to for loading modules
+    "esri/config",
+    "esri/Map",
+
+  //Vector Tile Layer 
+  "esri/layers/VectorTileLayer",     
+   "esri/layers/FeatureLayer",
+
+
+
+
+    "esri/views/MapView", //2D View 
+    "esri/views/SceneView", // 3D View
+
+    //Base Map Modules
+    "esri/widgets/BasemapToggle",
+    "esri/widgets/BasemapGallery",
+
+  
+
+
+
+  ], function (esriConfig, Map, VectorTileLayer,FeatureLayer,MapView, SceneView, BasemapToggle, BasemapGallery ) {
+
+    esriConfig.apiKey = arcgisApiKey; // Sets API Key 
+
+
+
+ 
+
+
+    // creates new map object with basemap option
+    const map = new Map({
+      basemap: "arcgis-topographic", // Basemap layer
+      ground: "world-elevation", //Elevation service\
+
+      //layers: [vtlLayer] // Adds vector layer 
+
+  
+ 
 
     });
 
-  </script>
-  <style>
-    #map {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  #search {
-    display: block;
-    position: absolute;
-    z-index: 3;
-    top: 20px;
-    left: 75px;
-  }
-  </style>
+    // creates 2D MapView object with various obtion with map object above
+    const view = new MapView({
+      map: map,
+      center: [38, 38.027], //Longitude Latitude 
+      zoom: 13, // scale: 72223.819286
+      container: "viewDiv",
+      constraints: {
+        snapToZoom: false
+      }
+    });
+
+    // creates SceneView 
+    // const view = new SceneView({
+    //   container: "viewDiv",
+    //   map: map,
+    //   camera: {
+    //     position: {
+    //       x: 38.808, //Longitude
+    //       y: 38.961, //Latitude
+    //       z: 20000 //Meters
+    //     },
+    //     tilt: 50
+    //   }
+    // });
+
+
+    // Adds basemap widget 
+    const basemapToggle = new BasemapToggle({
+      view: view,
+      nextBasemap: "arcgis-imagery"
+    });
+
+    view.ui.add(basemapToggle, "bottom-right");
+
+
+    // Adds basemap galery  widget 
+
+    const basemapGallery = new BasemapGallery({
+      view: view,
+      source: {
+        query: {
+          title: '"World Basemaps for Developers" AND owner:esri'
+        }
+      }
+    });
+    view.ui.add(basemapGallery, "top-right"); // Add to the view
+
+
+    //All sample data https://services3.arcgis.com/GVgbJbqm8hXASVYi/ArcGIS/rest/services
+
+    // sample data in Los Angeles
+  
+
+
+      const bikeTrails = new FeatureLayer({
+        url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+        renderer: bikeTrailsRenderer,
+        definitionExpression: "USE_BIKE = 'YES'"
+      });
+
+      map.add(bikeTrails, 0);
+
+      const trails = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+        renderer: trailsRenderer, 
+        opacity: .75
+      });
+
+      // Add the layer
+      map.add(trails,1);
+
+   
+
+
+
+
+
+  });
+
+
+
+</script>
+
+
+</head>
+
+
+
 </html>
