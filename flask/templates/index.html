@@ -163,7 +163,12 @@
 
     //Sketch 
     //Empty graphic layer 
-    const graphicsLayer = new GraphicsLayer();
+    const graphicsLayer = new GraphicsLayer(
+      {title:"Sketchs"},
+    );
+
+    map.add(graphicsLayer);
+
 
     // create a new sketch widget
     const sketch = new Sketch({
