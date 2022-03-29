@@ -61,11 +61,13 @@
 
     "esri/layers/GraphicsLayer",
 
-    "esri/widgets/ScaleBar"
+    "esri/widgets/ScaleBar",
+    "esri/widgets/Expand",
+    "esri/widgets/Sketch"
 
 
 
-  ], function (esriConfig, Map, VectorTileLayer, FeatureLayer, MapView, SceneView, BasemapToggle, BasemapGallery,LayerList,GraphicsLayer,ScaleBar) {
+  ], function (esriConfig, Map, VectorTileLayer, FeatureLayer, MapView, SceneView, BasemapToggle, BasemapGallery,LayerList,GraphicsLayer,ScaleBar,Expand,Sketch) {
 
     esriConfig.apiKey = arcgisApiKey; // Sets API Key 
 
@@ -131,21 +133,56 @@
         }
       }
     });
-    view.ui.add(basemapGallery, "top-right"); // Add to the view
+    //view.ui.add(basemapGallery, "top-right"); // Add to the view
 
 
+    const bgExpand = new Expand({
+      view: view,
+      content: basemapGallery
+    });
+
+
+    view.ui.add(bgExpand, "top-right");
+
+
+
+
+
+    //Scale Bar
     let scaleBar = new ScaleBar({
       view: view,
       unit:"metric",
       style: "ruler"
     });
+
     // Add widget to the bottom left corner of the view
     view.ui.add(scaleBar, {
       position: "bottom-left", 
     });
 
 
+    //Sketch 
+    //Empty graphic layer 
+    const graphicsLayer = new GraphicsLayer();
 
+    // create a new sketch widget
+    const sketch = new Sketch({
+      view,
+      layer: graphicsLayer
+    });
+    
+    const sketchExpand = new Expand({
+      view: view,
+      content: sketch
+    });
+
+
+    view.ui.add(sketchExpand, "top-right");
+
+
+
+    
+  
 
     //All sample data https://services3.arcgis.com/GVgbJbqm8hXASVYi/ArcGIS/rest/services
 
@@ -206,13 +243,22 @@
 
 
 
+    //Layer List
+
     let layerList = new LayerList({
       view: view
     });
-    // Adds widget below other elements in the top left corner of the view
-    view.ui.add(layerList, {
+    
+    const layerListExpand = new Expand({
+      view: view,
+      content: layerList
+    });
+
+  
+    view.ui.add(layerListExpand, {
       position: "top-left"
     });
+
 
   });
 
