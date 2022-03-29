@@ -32,3 +32,11 @@ const bikeTrailsRenderer = {
 
 
  
+  const simpleMarkerSymbol = {
+    type: "simple-marker",
+    color: [226, 119, 40],  // Orange
+    outline: {
+        color: [255, 255, 255], // White
+        width: 1
+    }
+ };

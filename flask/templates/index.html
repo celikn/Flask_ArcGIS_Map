@@ -42,9 +42,9 @@
     "esri/config",
     "esri/Map",
 
-  //Vector Tile Layer 
-  "esri/layers/VectorTileLayer",     
-   "esri/layers/FeatureLayer",
+    //Vector Tile Layer 
+    "esri/layers/VectorTileLayer",
+    "esri/layers/FeatureLayer",
 
 
 
@@ -56,17 +56,22 @@
     "esri/widgets/BasemapToggle",
     "esri/widgets/BasemapGallery",
 
-  
+    //LayerList
+    "esri/widgets/LayerList",
+
+    "esri/layers/GraphicsLayer",
+
+    "esri/widgets/ScaleBar"
 
 
 
-  ], function (esriConfig, Map, VectorTileLayer,FeatureLayer,MapView, SceneView, BasemapToggle, BasemapGallery ) {
+  ], function (esriConfig, Map, VectorTileLayer, FeatureLayer, MapView, SceneView, BasemapToggle, BasemapGallery,LayerList,GraphicsLayer,ScaleBar) {
 
     esriConfig.apiKey = arcgisApiKey; // Sets API Key 
 
 
 
- 
+
 
 
     // creates new map object with basemap option
@@ -76,8 +81,8 @@
 
       //layers: [vtlLayer] // Adds vector layer 
 
-  
- 
+
+
 
     });
 
@@ -129,34 +134,85 @@
     view.ui.add(basemapGallery, "top-right"); // Add to the view
 
 
+    let scaleBar = new ScaleBar({
+      view: view,
+      unit:"metric",
+      style: "ruler"
+    });
+    // Add widget to the bottom left corner of the view
+    view.ui.add(scaleBar, {
+      position: "bottom-left", 
+    });
+
+
+
+
     //All sample data https://services3.arcgis.com/GVgbJbqm8hXASVYi/ArcGIS/rest/services
 
     // sample data in Los Angeles
-  
 
 
-      const bikeTrails = new FeatureLayer({
-        url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
-        renderer: bikeTrailsRenderer,
-        definitionExpression: "USE_BIKE = 'YES'"
-      });
 
-      map.add(bikeTrails, 0);
+    const bikeTrails = new FeatureLayer({
+      url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+      renderer: bikeTrailsRenderer,
+      definitionExpression: "USE_BIKE = 'YES'"
+    });
 
-      const trails = new FeatureLayer({
-        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
-        renderer: trailsRenderer, 
-        opacity: .75
-      });
+    map.add(bikeTrails, 0);
 
-      // Add the layer
-      map.add(trails,1);
+    const trails = new FeatureLayer({
+      url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+      renderer: trailsRenderer,
+      opacity: .75
+    });
 
-   
+    // Add the layer
+    map.add(trails, 1);
 
 
 
 
+    // Add Graphic Layer
+    // const graphicsLayer = new GraphicsLayer();
+
+    // const point = { //Create a point
+    //   type: "point",
+    //   longitude: 36.80657463861,
+    //   latitude: 37.0005930608889
+    // };
+
+    // const pointGraphic = new Graphic({
+    //   geometry: point,
+    //   symbol: simpleMarkerSymbol
+    // });
+    // graphicsLayer.add(pointGraphic);
+    // map.add(graphicsLayer);
+
+
+    //Add feature Layer
+
+
+    // Parks and open spaces (polygons)
+    const parksLayer = new FeatureLayer({
+      url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0"
+    });
+
+    map.add(parksLayer, 0);
+
+    parksLayer.when(() => {
+      view.goTo(parksLayer.fullExtent);
+    });
+
+
+
+    let layerList = new LayerList({
+      view: view
+    });
+    // Adds widget below other elements in the top left corner of the view
+    view.ui.add(layerList, {
+      position: "top-left"
+    });
 
   });
 
